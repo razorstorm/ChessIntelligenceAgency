@@ -8,3 +8,4 @@ Symbols denoting which black pieces are attacking the square will show up on the
 
 Situations like pins are not factored in, so a piece that is pinned to your king will still show up as threatening all the squares that it can normally move to. 
 
+![Screenshot](https://github.com/razorstorm/ChessIntelligenceAgency/blob/main/screenshot.png?raw=true)
