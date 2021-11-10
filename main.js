@@ -18,7 +18,6 @@ const boardPieces = [];
 
 function registerSquare(results, newCoords, pieceType) {
     const filteredCoords = newCoords.filter(coords => coords[0] >= 0 && coords[0] < 8 && coords[1] >= 0 && coords[1] < 8 && coords[0] !== NaN && coords[1] !== NaN);
-    console.log("filteredCoords", newCoords, filteredCoords);
     const dedupedNotations = new Set(filteredCoords.map(coords => toNotation(coords)));
     dedupedNotations.forEach(notation => {
         if(results[notation] !== undefined) {
@@ -58,7 +57,6 @@ class Piece {
         let squaresToRegister = [];
         switch(this.pieceType) {
             case 'KING':
-                console.log("king", this.fileIndex, this.rankIndex, toNotation([this.fileIndex, this.rankIndex]));
                 registerSquare(results, [
                     [this.fileIndex - 1, this.rankIndex - 1], 
                     [this.fileIndex - 1, this.rankIndex],
@@ -307,7 +305,6 @@ class Piece {
 }
 
 function toNotation(coords) {
-    // console.log(coords, "=>", fileNames[coords[0]] + "" + rankNames[coords[1]]);
     return fileNames[coords[0]] + "" + rankNames[coords[1]];
 }
 
@@ -348,11 +345,8 @@ function drawSquare(square, pieces, faction) {
         const stripeColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
         node.style.padding = "7px";
         // node.style.background = `repeating-linear-gradient(-45deg, ${stripeColor}, ${stripeColor} 5px, ${bgColor} 5px, ${bgColor} 15px)`;
-        // node.style.backgroundColor = stripeColor;
+        node.style.backgroundColor = stripeColor;
         node.style.background = `radial-gradient(circle, rgba(255,0,0,0.7) 0%, rgba(255,0,0,0.1) 60%, rgba(255,0,0,0) 100%)`;
-        // node.style.borderStyle = "dotted";
-        // node.style.borderColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
-        // node.style.borderWidth = "10px";
         node.style.zIndex = "1";
     }
     const nodeText = document.createElement("p");
@@ -476,8 +470,7 @@ function render(renderwhite=true, renderblack=true) {
 
 render(renderwhite=true, renderblack=true);
 
-const observer = new MutationObserver((mutations) => {
-    mutations.forEach(mutation => console.log(mutation.type))
+const observer = new MutationObserver(mutations => {
     render(renderwhite=true, renderblack=true);
 });
 
