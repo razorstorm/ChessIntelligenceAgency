@@ -21,11 +21,11 @@ function registerSquare(results, newCoords, pieceType) {
         if(newCoord[0] < 0 || newCoord[0] >= 8 || newCoord[1] < 0 || newCoord[1] >= 8) {
             return;
         }
-        const coords = fileNames[newCoord[0]] + rankNames[newCoord[1]];
-        if(results[coords] !== undefined) {
-            results[coords].push(pieceType);
+        const notation = toNotation(newCoord);
+        if(results[notation] !== undefined) {
+            results[notation].push(pieceType);
         } else {
-            results[coords] = [pieceType];
+            results[notation] = [pieceType];
         }
     });
 }
@@ -333,36 +333,39 @@ class Piece {
 }
 
 function toNotation(coords) {
-    return fileNames[coords[0]]+""+rankNames[coords[1]];
+    return fileNames[coords[0]] + "" + rankNames[coords[1]];
 }
 
-// function toCoords(notation) {}
+function toCoords(notation) {
+    const file = notation[0];
+    const rankIndex = parseInt(notation[1]);
+    const fileIndex = file.charCodeAt(0) - 'a'.charCodeAt(0);
 
-// function toOffset(coords) {
+    return [fileIndex, rankIndex];
+}
 
-// }
+function toOffsets(coords) {
+    const fileOffset = coords[0] * widthPerSquare;
+    const rankOffset = height - coords[1] * heightPerSquare;
+
+    return [fileOffset, rankOffset];
+}
 
 function drawSquare(square, pieces, faction) {
     const node = document.createElement("square");
     node.className = `renderedSquare attacked_${faction}`;
 
-    const file = square[0];
-    const rankIndex = parseInt(square[1]);
-    const fileIndex = file.charCodeAt(0) - 'a'.charCodeAt(0);
-
-    const fileOffset = fileIndex * widthPerSquare;
-    const rankOffset = height - rankIndex * heightPerSquare;
+    const coords = toCoords(square);
+    const [fileOffset, rankOffset] = toOffsets(coords);
 
     node.style.transform = `translate(${fileOffset}px, ${rankOffset}px)`;
     if (faction === "white") {
         const bgColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
         const stripeColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
-        // node.style.backgroundColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
         node.style.background = `repeating-linear-gradient(45deg, ${stripeColor}, ${stripeColor} 10px, ${bgColor} 10px, ${bgColor} 25px)`;
     } else {
         const bgColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
         const stripeColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
-        // node.style.backgroundColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
         node.style.background = `repeating-linear-gradient(-45deg, ${stripeColor}, ${stripeColor} 10px, ${bgColor} 10px, ${bgColor} 25px)`;
     }
     const nodeText = document.createElement("p");
@@ -443,8 +446,6 @@ function render(renderwhite=true, renderblack=true) {
         const queenPieces = queens.map(domElement => new Piece(domElement, "QUEEN", faction));
         const kingPieces = kings.map(domElement => new Piece(domElement, "KING", faction));
     
-        console.log("Board pieces", boardPieces);
-    
         let attackedSquares = new Set();
         pawnPieces.forEach(piece => {
          piece.threatenedSquares(attackedSquares);
@@ -485,19 +486,14 @@ function render(renderwhite=true, renderblack=true) {
 
     factionsToRender.forEach(faction => _render_faction(faction));
 }
+
 render(renderwhite=true, renderblack=true);
 
 const observer = new MutationObserver((mutations) => {
-    console.log("observed");
     mutations.forEach(mutation => console.log(mutation.type))
-    console.log("mouse moved");
     render(renderwhite=true, renderblack=true);
 });
 
 observer.observe(board, { childList: true });
-// board.onmouseover = function() {
-//     console.log("mouse moved");
-//     render(renderwhite=true, renderblack=true);
-// };
 
 })();
