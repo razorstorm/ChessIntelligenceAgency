@@ -3,8 +3,8 @@ const container = document.querySelector('cg-container');
 const board = document.querySelector('cg-container cg-board');
 const widthStyle = container.style.width;
 const heightStyle = container.style.height;
-const width = parseInt(widthStyle);
-const height = parseInt(heightStyle);
+const width = parseFloat(widthStyle);
+const height = parseFloat(heightStyle);
 
 const widthPerSquare = width / 8;
 const heightPerSquare = height / 8;
@@ -338,11 +338,22 @@ function drawSquare(square, pieces, faction) {
     if (faction === "white") {
         const bgColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
         const stripeColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
-        node.style.background = `repeating-linear-gradient(45deg, ${stripeColor}, ${stripeColor} 10px, ${bgColor} 10px, ${bgColor} 25px)`;
+        // node.style.background = `repeating-linear-gradient(45deg, ${stripeColor}, ${stripeColor} 10px, ${bgColor} 10px, ${bgColor} 25px)`;
+        node.style.borderStyle = "outset";
+        node.style.borderColor = `rgba(150,150,255,1)`;
+        node.style.borderWidth = "7px";
+        node.style.zIndex = "2";
     } else {
-        const bgColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
+        const bgColor = `rgba(255,0,0,0)`;
         const stripeColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
-        node.style.background = `repeating-linear-gradient(-45deg, ${stripeColor}, ${stripeColor} 10px, ${bgColor} 10px, ${bgColor} 25px)`;
+        node.style.padding = "7px";
+        // node.style.background = `repeating-linear-gradient(-45deg, ${stripeColor}, ${stripeColor} 5px, ${bgColor} 5px, ${bgColor} 15px)`;
+        // node.style.backgroundColor = stripeColor;
+        node.style.background = `radial-gradient(circle, rgba(255,0,0,0.7) 0%, rgba(255,0,0,0.1) 60%, rgba(255,0,0,0) 100%)`;
+        // node.style.borderStyle = "dotted";
+        // node.style.borderColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
+        // node.style.borderWidth = "10px";
+        node.style.zIndex = "1";
     }
     const nodeText = document.createElement("p");
     nodeText.innerText = pieces.map(piece => pieceTypeToUnicode(piece, faction));
