@@ -9,6 +9,8 @@ const height = parseFloat(heightStyle);
 const widthPerSquare = width / 8;
 const heightPerSquare = height / 8;
 
+console.debug("widthPerSquare", widthPerSquare, "widthPerSquare", widthPerSquare);
+
 const fileNames = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const rankNames = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
@@ -34,12 +36,12 @@ class Piece {
         this.transformStr = domElement.style.transform;
         this.transform = this.transformStr.replace(/[a-zA-Z\(\)]*/g, "").split(",");
         this.xOffset = this.transform[0];
-        this.yOffset = height - 1;
+        this.yOffset = height;
         if (this.transform.length > 1)
             this.yOffset = height - this.transform[1];
 
-        this.fileIndex = Math.min(parseInt(this.xOffset / widthPerSquare), 7);
-        this.rankIndex = Math.min(parseInt(this.yOffset / heightPerSquare), 7);
+        this.fileIndex = Math.min(Math.round(this.xOffset / widthPerSquare), 7);
+        this.rankIndex = Math.min(Math.round(this.yOffset / heightPerSquare) - 1, 7);
 
         this.file = fileNames[this.fileIndex];
 
@@ -49,6 +51,8 @@ class Piece {
         this.faction = faction;
 
         this.notation = this.file +"" + this.rank;
+
+        console.debug(this.faction, this.pieceType, this.xOffset, this.yOffset, this.fileIndex, this.rankIndex, this.notation)
 
         boardPieces[this.notation] = this;
     }
