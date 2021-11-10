@@ -1,8 +1,8 @@
 javascript: (() => {
-const container = document.querySelectorAll('cg-container');
-const board = document.querySelectorAll('cg-container cg-board')[0];
-const widthStyle = container[0].style.width;
-const heightStyle = container[0].style.height;
+const container = document.querySelector('cg-container');
+const board = document.querySelector('cg-container cg-board');
+const widthStyle = container.style.width;
+const heightStyle = container.style.height;
 const width = parseInt(widthStyle);
 const height = parseInt(heightStyle);
 
@@ -14,19 +14,19 @@ const rankNames = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
 const SQUARE_ALPHA = 0.30;
 
-const w_rooks =  Array.from(document.querySelectorAll('piece.white.rook'));
-const w_knights =  Array.from(document.querySelectorAll('piece.white.knight'));
-const w_bishops =  Array.from(document.querySelectorAll('piece.white.bishop'));
-const w_queens =  Array.from(document.querySelectorAll('piece.white.queen'));
-const w_kings =  Array.from(document.querySelectorAll('piece.white.king'));
-const w_pawns =  Array.from(document.querySelectorAll('piece.white.pawn'));
+const w_rooks = Array.from(document.querySelectorAll('piece.white.rook'));
+const w_knights = Array.from(document.querySelectorAll('piece.white.knight'));
+const w_bishops = Array.from(document.querySelectorAll('piece.white.bishop'));
+const w_queens = Array.from(document.querySelectorAll('piece.white.queen'));
+const w_kings = Array.from(document.querySelectorAll('piece.white.king'));
+const w_pawns = Array.from(document.querySelectorAll('piece.white.pawn'));
 
-const b_rooks =  Array.from(document.querySelectorAll('piece.black.rook'));
-const b_knights =  Array.from(document.querySelectorAll('piece.black.knight'));
-const b_bishops =  Array.from(document.querySelectorAll('piece.black.bishop'));
-const b_queens =  Array.from(document.querySelectorAll('piece.black.queen'));
-const b_kings =  Array.from(document.querySelectorAll('piece.black.king'));
-const b_pawns =  Array.from(document.querySelectorAll('piece.black.pawn'));
+const b_rooks = Array.from(document.querySelectorAll('piece.black.rook'));
+const b_knights = Array.from(document.querySelectorAll('piece.black.knight'));
+const b_bishops = Array.from(document.querySelectorAll('piece.black.bishop'));
+const b_queens = Array.from(document.querySelectorAll('piece.black.queen'));
+const b_kings = Array.from(document.querySelectorAll('piece.black.king'));
+const b_pawns = Array.from(document.querySelectorAll('piece.black.pawn'));
 
 const boardPieces = [];
 
@@ -346,7 +346,6 @@ class Piece {
     }
 }
 
-
 function toNotation(coords) {
     return fileNames[coords[0]]+""+rankNames[coords[1]];
 }
@@ -365,14 +364,9 @@ function drawSquare(square, pieces, faction) {
     const rankIndex = parseInt(square[1]);
     const fileIndex = file.charCodeAt(0) - 'a'.charCodeAt(0);
 
-    // console.log(fileIndex, rankIndex);
-
     const fileOffset = fileIndex * widthPerSquare;
     const rankOffset = height - rankIndex * heightPerSquare;
 
-    // console.log("[", fileOffset, rankOffset, "]");
-
-    // node.style.transform = `translate(666.667px, 266.667px)`;
     node.style.transform = `translate(${fileOffset}px, ${rankOffset}px)`;
     if (faction === "WHITE") {
         const bgColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
@@ -443,6 +437,10 @@ function deleteSquares() {
 }
 
 function render(renderWhite=true, renderBlack=true) {
+    const squares = document.querySelectorAll('square.renderedSquare');
+    if(squares.length > 0) {
+        return;
+    }
     deleteSquares();
 
     const wPawnPieces = w_pawns.map(domElement => new Piece(domElement, "PAWN", "WHITE"));
@@ -483,7 +481,6 @@ function render(renderWhite=true, renderBlack=true) {
         drawSquare(square, "WHITE");
     });
 
-
     if(renderWhite) {
         Object.keys(attackedSquares).forEach(coords => {
             drawSquare(coords, attackedSquares[coords], "WHITE");
@@ -512,8 +509,6 @@ function render(renderWhite=true, renderBlack=true) {
         piece.threatenedSquares(attackedSquares);
     });
 
-    console.log("attackedSquares", attackedSquares);
-
     bRookPieces.forEach(piece => {
         piece.threatenedSquares(attackedSquares);
     });
@@ -534,8 +529,17 @@ function render(renderWhite=true, renderBlack=true) {
 }
 render(renderWhite=true, renderBlack=true);
 
-board.onclick = function() {
+const observer = new MutationObserver((mutations) => {
+    console.log("observed");
+    mutations.forEach(mutation => console.log(mutation.type))
+    console.log("mouse moved");
     render(renderWhite=true, renderBlack=true);
-};
+});
+
+observer.observe(board, { childList: true });
+// board.onmouseover = function() {
+//     console.log("mouse moved");
+//     render(renderWhite=true, renderBlack=true);
+// };
 
 })();
