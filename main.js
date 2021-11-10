@@ -14,20 +14,6 @@ const rankNames = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
 const SQUARE_ALPHA = 0.30;
 
-const w_rooks = Array.from(document.querySelectorAll('piece.white.rook'));
-const w_knights = Array.from(document.querySelectorAll('piece.white.knight'));
-const w_bishops = Array.from(document.querySelectorAll('piece.white.bishop'));
-const w_queens = Array.from(document.querySelectorAll('piece.white.queen'));
-const w_kings = Array.from(document.querySelectorAll('piece.white.king'));
-const w_pawns = Array.from(document.querySelectorAll('piece.white.pawn'));
-
-const b_rooks = Array.from(document.querySelectorAll('piece.black.rook'));
-const b_knights = Array.from(document.querySelectorAll('piece.black.knight'));
-const b_bishops = Array.from(document.querySelectorAll('piece.black.bishop'));
-const b_queens = Array.from(document.querySelectorAll('piece.black.queen'));
-const b_kings = Array.from(document.querySelectorAll('piece.black.king'));
-const b_pawns = Array.from(document.querySelectorAll('piece.black.pawn'));
-
 const boardPieces = [];
 
 function registerSquare(results, newCoords, pieceType) {
@@ -87,7 +73,7 @@ class Piece {
                 ]), this.pieceType);
                 return results;
             case 'PAWN':
-                if (this.faction === "WHITE") {
+                if (this.faction === "white") {
                     registerSquare(results, new Set([[this.fileIndex - 1, this.rankIndex + 1], [this.fileIndex + 1, this.rankIndex + 1]]), this.pieceType);
                     return results;
                 } else {
@@ -368,7 +354,7 @@ function drawSquare(square, pieces, faction) {
     const rankOffset = height - rankIndex * heightPerSquare;
 
     node.style.transform = `translate(${fileOffset}px, ${rankOffset}px)`;
-    if (faction === "WHITE") {
+    if (faction === "white") {
         const bgColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
         const stripeColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
         // node.style.backgroundColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
@@ -383,7 +369,7 @@ function drawSquare(square, pieces, faction) {
     nodeText.innerText = pieces.map(piece => pieceTypeToUnicode(piece, faction));
     nodeText.style.lineHeight = "normal";
     nodeText.style.fontSize = "15pt";
-    if (faction === "WHITE") {
+    if (faction === "white") {
         nodeText.style.position = "absolute";
         nodeText.style.bottom = 0;
         nodeText.style.display = "block";
@@ -396,7 +382,7 @@ function drawSquare(square, pieces, faction) {
 }
 
 function pieceTypeToUnicode(piece, faction) {
-    if(faction === "WHITE") {
+    if(faction === "white") {
         switch(piece) {
             case "PAWN":
                 return "♙";
@@ -436,110 +422,82 @@ function deleteSquares() {
     });
 }
 
-function render(renderWhite=true, renderBlack=true) {
+function render(renderwhite=true, renderblack=true) {
     const squares = document.querySelectorAll('square.renderedSquare');
     if(squares.length > 0) {
         return;
     }
     deleteSquares();
 
-    const wPawnPieces = w_pawns.map(domElement => new Piece(domElement, "PAWN", "WHITE"));
-    const wRookPieces = w_rooks.map(domElement => new Piece(domElement, "ROOK", "WHITE"));
-    const wKnightPieces = w_knights.map(domElement => new Piece(domElement, "KNIGHT", "WHITE"));
-    const wBishopPieces = w_bishops.map(domElement => new Piece(domElement, "BISHOP", "WHITE"));
-    const wQueenPieces = w_queens.map(domElement => new Piece(domElement, "QUEEN", "WHITE"));
-    const wKingPieces = w_kings.map(domElement => new Piece(domElement, "KING", "WHITE"));
-
-    console.log("Board pieces", boardPieces);
-
-    let attackedSquares = new Set();
-    wPawnPieces.forEach(piece => {
-     piece.threatenedSquares(attackedSquares);
-    });
-
-    wKnightPieces.forEach(piece => {
-     piece.threatenedSquares(attackedSquares);
-    });
-
-    wBishopPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    wRookPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    wKingPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    wQueenPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    attackedSquares.forEach(square => {
-        drawSquare(square, "WHITE");
-    });
-
-    if(renderWhite) {
+    const _render_faction = faction => {
+        const rooks = Array.from(document.querySelectorAll(`piece.${faction}.rook`));
+        const knights = Array.from(document.querySelectorAll(`piece.${faction}.knight`));
+        const bishops = Array.from(document.querySelectorAll(`piece.${faction}.bishop`));
+        const queens = Array.from(document.querySelectorAll(`piece.${faction}.queen`));
+        const kings = Array.from(document.querySelectorAll(`piece.${faction}.king`));
+        const pawns = Array.from(document.querySelectorAll(`piece.${faction}.pawn`));
+        const pawnPieces = pawns.map(domElement => new Piece(domElement, "PAWN", faction));
+        const rookPieces = rooks.map(domElement => new Piece(domElement, "ROOK", faction));
+        const knightPieces = knights.map(domElement => new Piece(domElement, "KNIGHT", faction));
+        const bishopPieces = bishops.map(domElement => new Piece(domElement, "BISHOP", faction));
+        const queenPieces = queens.map(domElement => new Piece(domElement, "QUEEN", faction));
+        const kingPieces = kings.map(domElement => new Piece(domElement, "KING", faction));
+    
+        console.log("Board pieces", boardPieces);
+    
+        let attackedSquares = new Set();
+        pawnPieces.forEach(piece => {
+         piece.threatenedSquares(attackedSquares);
+        });
+    
+        rookPieces.forEach(piece => {
+         piece.threatenedSquares(attackedSquares);
+        });
+    
+        knightPieces.forEach(piece => {
+            piece.threatenedSquares(attackedSquares);
+        });
+    
+        bishopPieces.forEach(piece => {
+            piece.threatenedSquares(attackedSquares);
+        });
+    
+        queenPieces.forEach(piece => {
+            piece.threatenedSquares(attackedSquares);
+        });
+    
+        kingPieces.forEach(piece => {
+            piece.threatenedSquares(attackedSquares);
+        });
+    
         Object.keys(attackedSquares).forEach(coords => {
-            drawSquare(coords, attackedSquares[coords], "WHITE");
+            drawSquare(coords, attackedSquares[coords], faction);
         });
     }
 
-    attackedSquares = {};
-    const bPawnPieces = b_pawns.map(domElement => new Piece(domElement, "PAWN", "BLACK"));
-    const bRookPieces = b_rooks.map(domElement => new Piece(domElement, "ROOK", "BLACK"));
-    const bKnightPieces = b_knights.map(domElement => new Piece(domElement, "KNIGHT", "BLACK"));
-    const bBishopPieces = b_bishops.map(domElement => new Piece(domElement, "BISHOP", "BLACK"));
-    const bQueenPieces = b_queens.map(domElement => new Piece(domElement, "QUEEN", "BLACK"));
-    const bKingPieces = b_kings.map(domElement => new Piece(domElement, "KING", "BLACK"));
-
-    console.log("Board pieces", boardPieces);
-
-    bPawnPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    bKnightPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    bBishopPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    bRookPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    bKingPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    bQueenPieces.forEach(piece => {
-        piece.threatenedSquares(attackedSquares);
-    });
-
-    if(renderBlack) {
-        Object.keys(attackedSquares).forEach(coords => {
-            drawSquare(coords, attackedSquares[coords], "BLACK");
-        });
+    let factionsToRender = [];
+    if (renderwhite) {
+        factionsToRender.push("white");
     }
+    if (renderblack) {
+        factionsToRender.push("black");
+    }
+
+    factionsToRender.forEach(faction => _render_faction(faction));
 }
-render(renderWhite=true, renderBlack=true);
+render(renderwhite=true, renderblack=true);
 
 const observer = new MutationObserver((mutations) => {
     console.log("observed");
     mutations.forEach(mutation => console.log(mutation.type))
     console.log("mouse moved");
-    render(renderWhite=true, renderBlack=true);
+    render(renderwhite=true, renderblack=true);
 });
 
 observer.observe(board, { childList: true });
 // board.onmouseover = function() {
 //     console.log("mouse moved");
-//     render(renderWhite=true, renderBlack=true);
+//     render(renderwhite=true, renderblack=true);
 // };
 
 })();
