@@ -17,11 +17,10 @@ const SQUARE_ALPHA = 0.30;
 const boardPieces = [];
 
 function registerSquare(results, newCoords, pieceType) {
-    newCoords.forEach(newCoord => {
-        if(newCoord[0] < 0 || newCoord[0] >= 8 || newCoord[1] < 0 || newCoord[1] >= 8) {
-            return;
-        }
-        const notation = toNotation(newCoord);
+    const filteredCoords = newCoords.filter(coords => coords[0] >= 0 && coords[0] < 8 && coords[1] >= 0 && coords[1] < 8 && coords[0] !== NaN && coords[1] !== NaN);
+    console.log("filteredCoords", newCoords, filteredCoords);
+    const dedupedNotations = new Set(filteredCoords.map(coords => toNotation(coords)));
+    dedupedNotations.forEach(notation => {
         if(results[notation] !== undefined) {
             results[notation].push(pieceType);
         } else {
@@ -56,9 +55,11 @@ class Piece {
     }
 
     threatenedSquares(results) {
+        let squaresToRegister = [];
         switch(this.pieceType) {
             case 'KING':
-                registerSquare(results, new Set([
+                console.log("king", this.fileIndex, this.rankIndex, toNotation([this.fileIndex, this.rankIndex]));
+                registerSquare(results, [
                     [this.fileIndex - 1, this.rankIndex - 1], 
                     [this.fileIndex - 1, this.rankIndex],
                     [this.fileIndex - 1, this.rankIndex + 1],
@@ -69,19 +70,18 @@ class Piece {
                     [this.fileIndex + 1, this.rankIndex - 1], 
                     [this.fileIndex + 1, this.rankIndex],
                     [this.fileIndex + 1, this.rankIndex + 1],
-
-                ]), this.pieceType);
+                ], this.pieceType);
                 return results;
             case 'PAWN':
                 if (this.faction === "white") {
-                    registerSquare(results, new Set([[this.fileIndex - 1, this.rankIndex + 1], [this.fileIndex + 1, this.rankIndex + 1]]), this.pieceType);
+                    registerSquare(results, [[this.fileIndex - 1, this.rankIndex + 1], [this.fileIndex + 1, this.rankIndex + 1]], this.pieceType);
                     return results;
                 } else {
-                   registerSquare(results, new Set([[this.fileIndex - 1, this.rankIndex - 1], [this.fileIndex + 1, this.rankIndex - 1]]), this.pieceType);
+                   registerSquare(results, [[this.fileIndex - 1, this.rankIndex - 1], [this.fileIndex + 1, this.rankIndex - 1]], this.pieceType);
                     return results; 
                 }
             case 'KNIGHT':
-                registerSquare(results, new Set([
+                registerSquare(results, [
                     [this.fileIndex - 2, this.rankIndex - 1], 
                     [this.fileIndex - 2, this.rankIndex + 1],
 
@@ -93,7 +93,7 @@ class Piece {
 
                     [this.fileIndex + 2, this.rankIndex - 1],
                     [this.fileIndex + 2, this.rankIndex + 1],
-                ]), this.pieceType);
+                ], this.pieceType);
                 return results;
             case 'BISHOP':
                 for (let rankIndex = this.rankIndex, fileIndex = this.fileIndex; rankIndex >= 0 && fileIndex >= 0; rankIndex--, fileIndex--) {
@@ -101,9 +101,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -115,9 +113,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -129,9 +125,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -143,14 +137,14 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
                     }
                 }
+
+                registerSquare(results, squaresToRegister, this.pieceType);
 
                 return results;
             case 'ROOK':
@@ -159,9 +153,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -173,9 +165,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -187,9 +177,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -201,14 +189,14 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
                     }
                 }
+
+                registerSquare(results, squaresToRegister, this.pieceType);
 
                 return results;
             case 'QUEEN':
@@ -217,9 +205,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -231,9 +217,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -245,9 +229,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -259,9 +241,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -272,9 +252,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -286,9 +264,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -300,9 +276,7 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
@@ -314,14 +288,14 @@ class Piece {
                         continue;
                     }
                     let index = [fileIndex, rankIndex];
-                    registerSquare(results, new Set([
-                        index
-                    ]), this.pieceType);
+                    squaresToRegister.push(index);
 
                     if (boardPieces[toNotation(index)]) {
                         break;
                     }
                 }
+
+                registerSquare(results, squaresToRegister, this.pieceType);
 
                 return results;
             default:
@@ -333,20 +307,22 @@ class Piece {
 }
 
 function toNotation(coords) {
+    // console.log(coords, "=>", fileNames[coords[0]] + "" + rankNames[coords[1]]);
     return fileNames[coords[0]] + "" + rankNames[coords[1]];
 }
 
 function toCoords(notation) {
     const file = notation[0];
-    const rankIndex = parseInt(notation[1]);
+    // - 1 because notation is 1 indexed but coords are 0 indexed
+    const rankIndex = parseInt(notation[1]) - 1;
     const fileIndex = file.charCodeAt(0) - 'a'.charCodeAt(0);
-
     return [fileIndex, rankIndex];
 }
 
 function toOffsets(coords) {
     const fileOffset = coords[0] * widthPerSquare;
-    const rankOffset = height - coords[1] * heightPerSquare;
+    // + 1 because coords are 0 indexed but offsets are 1 indexed
+    const rankOffset = height - ((coords[1] + 1) * heightPerSquare);
 
     return [fileOffset, rankOffset];
 }
