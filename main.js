@@ -93,7 +93,9 @@ class Piece {
                 ], this.pieceType);
                 return results;
             case 'PAWN':
-                if (this.faction === "white") {
+                // TODO this should also take into account whether board is swapped.
+                const factionIsWhite = this.faction === "white";
+                if (factionIsWhite === PLAYER_IS_WHITE) {
                     registerSquare(results, [[this.fileIndex - 1, this.rankIndex + 1], [this.fileIndex + 1, this.rankIndex + 1]], this.pieceType);
                     return results;
                 } else {
@@ -354,7 +356,14 @@ function drawSquare(square, pieces, faction) {
     const [fileOffset, rankOffset] = toOffsets(coords);
 
     node.style.transform = `translate(${fileOffset}px, ${rankOffset}px)`;
-    if (faction === "white") {
+    const factionIsWhite = faction === "white";
+
+    const nodeText = document.createElement("p");
+    nodeText.innerText = pieces.map(piece => pieceTypeToUnicode(piece, faction));
+    nodeText.style.lineHeight = "normal";
+    nodeText.style.fontSize = "15pt";
+
+    if (factionIsWhite === PLAYER_IS_WHITE) {
         const bgColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
         const stripeColor = `rgba(0,0,255,${SQUARE_ALPHA})`;
         // node.style.background = `repeating-linear-gradient(45deg, ${stripeColor}, ${stripeColor} 10px, ${bgColor} 10px, ${bgColor} 25px)`;
@@ -362,6 +371,13 @@ function drawSquare(square, pieces, faction) {
         node.style.borderColor = `rgba(150,150,255,1)`;
         node.style.borderWidth = "7px";
         node.style.zIndex = "2";
+
+        nodeText.style.position = "absolute";
+        nodeText.style.bottom = 0;
+        nodeText.style.display = "block";
+        nodeText.style.marginBottom = 0;
+        nodeText.style.textAlign = "right";
+        nodeText.style.width = "100%";
     } else {
         const bgColor = `rgba(255,0,0,0)`;
         const stripeColor = `rgba(255,0,0,${SQUARE_ALPHA})`;
@@ -371,18 +387,7 @@ function drawSquare(square, pieces, faction) {
         node.style.background = `radial-gradient(circle, rgba(255,0,0,0.7) 0%, rgba(255,0,0,0.1) 60%, rgba(255,0,0,0) 100%)`;
         node.style.zIndex = "1";
     }
-    const nodeText = document.createElement("p");
-    nodeText.innerText = pieces.map(piece => pieceTypeToUnicode(piece, faction));
-    nodeText.style.lineHeight = "normal";
-    nodeText.style.fontSize = "15pt";
-    if (faction === "white") {
-        nodeText.style.position = "absolute";
-        nodeText.style.bottom = 0;
-        nodeText.style.display = "block";
-        nodeText.style.marginBottom = 0;
-        nodeText.style.textAlign = "right";
-        nodeText.style.width = "100%";
-    }
+
     node.appendChild(nodeText);
     board.appendChild(node);
 }
