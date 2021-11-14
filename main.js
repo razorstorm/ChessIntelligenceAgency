@@ -1,4 +1,3 @@
-javascript: (() => {
 const container = document.querySelector('cg-container');
 const board = document.querySelector('cg-container cg-board');
 const widthStyle = container.style.width;
@@ -17,6 +16,25 @@ const rankNames = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const SQUARE_ALPHA = 0.30;
 
 const boardPieces = [];
+
+const userTag = document.getElementById("user_tag");
+const userName = userTag.innerText.trim();
+console.debug("userName", userName);
+
+const gamePlayersTags = [...document.getElementsByClassName("color-icon player")];
+let PLAYER_IS_WHITE = false;
+gamePlayersTags.forEach(element => {
+    console.log(element);
+    let classNames = element.className;
+    let isWhite = classNames.includes("white");
+    let text = element.innerText;
+    let processedText = text.replace(/\(\d+\?*\)/,"").trim();
+    if(processedText === userName) {
+        PLAYER_IS_WHITE = isWhite;
+    }
+});
+
+console.log(PLAYER_IS_WHITE);
 
 let toRenderTimeoutHandle = null;
 
@@ -53,8 +71,6 @@ class Piece {
         this.faction = faction;
 
         this.notation = this.file +"" + this.rank;
-
-        console.debug(this.faction, this.pieceType, this.xOffset, this.yOffset, this.fileIndex, this.rankIndex, this.notation)
 
         boardPieces[this.notation] = this;
     }
@@ -488,5 +504,3 @@ const observer = new MutationObserver(mutations => {
 });
 
 observer.observe(board, { childList: true });
-
-})();
