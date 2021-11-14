@@ -419,7 +419,6 @@ function render(renderwhite=true, renderblack=true) {
     }
 
     const _processRenders = () => {
-        console.log("to render")
         deleteSquares();
         const _render_faction = faction => {
             const rooks = Array.from(document.querySelectorAll(`piece.${faction}.rook`));
