@@ -34,20 +34,19 @@ gamePlayersTags.forEach(element => {
     }
 });
 
-console.log(PLAYER_IS_WHITE);
-
 let toRenderTimeoutHandle = null;
 
 function registerSquare(results, newCoords, pieceType) {
     const filteredCoords = newCoords.filter(coords => coords[0] >= 0 && coords[0] < 8 && coords[1] >= 0 && coords[1] < 8 && coords[0] !== NaN && coords[1] !== NaN);
     const dedupedNotations = new Set(filteredCoords.map(coords => toNotation(coords)));
-    dedupedNotations.forEach(notation => {
+
+    for(const notation of [...dedupedNotations]) {
         if(results[notation] !== undefined) {
             results[notation].push(pieceType);
         } else {
             results[notation] = [pieceType];
         }
-    });
+    };
 }
 
 class Piece {
@@ -165,7 +164,7 @@ class Piece {
                         break;
                     }
                 }
-
+                
                 registerSquare(results, squaresToRegister, this.pieceType);
 
                 return results;
@@ -433,6 +432,50 @@ function deleteSquares() {
     });
 }
 
+const _render_faction = faction => {
+    const rooks = Array.from(document.querySelectorAll(`piece.${faction}.rook:not(.ghost)`));
+    const knights = Array.from(document.querySelectorAll(`piece.${faction}.knight:not(.ghost)`));
+    const bishops = Array.from(document.querySelectorAll(`piece.${faction}.bishop:not(.ghost)`));
+    const queens = Array.from(document.querySelectorAll(`piece.${faction}.queen:not(.ghost)`));
+    const kings = Array.from(document.querySelectorAll(`piece.${faction}.king:not(.ghost)`));
+    const pawns = Array.from(document.querySelectorAll(`piece.${faction}.pawn:not(.ghost)`));
+    const pawnPieces = pawns.map(domElement => new Piece(domElement, "PAWN", faction));
+    const rookPieces = rooks.map(domElement => new Piece(domElement, "ROOK", faction));
+    const knightPieces = knights.map(domElement => new Piece(domElement, "KNIGHT", faction));
+    const bishopPieces = bishops.map(domElement => new Piece(domElement, "BISHOP", faction));
+    const queenPieces = queens.map(domElement => new Piece(domElement, "QUEEN", faction));
+    const kingPieces = kings.map(domElement => new Piece(domElement, "KING", faction));
+
+    let attackedSquares = {};
+    pawnPieces.forEach(piece => {
+        piece.threatenedSquares(attackedSquares);
+    });
+
+    rookPieces.forEach(piece => {
+        piece.threatenedSquares(attackedSquares);
+    });
+
+    knightPieces.forEach(piece => {
+        piece.threatenedSquares(attackedSquares);
+    });
+
+    bishopPieces.forEach(piece => {
+        piece.threatenedSquares(attackedSquares);
+    });
+
+    queenPieces.forEach(piece => {
+        piece.threatenedSquares(attackedSquares);
+    });
+
+    kingPieces.forEach(piece => {
+        piece.threatenedSquares(attackedSquares);
+    });
+
+    for (const coords in attackedSquares) {
+        drawSquare(coords, attackedSquares[coords], faction);
+    };
+}
+
 function render(renderwhite=true, renderblack=true) {
     const squares = document.querySelectorAll('square.renderedSquare');
     if(squares.length > 0) {
@@ -441,49 +484,6 @@ function render(renderwhite=true, renderblack=true) {
 
     const _processRenders = () => {
         deleteSquares();
-        const _render_faction = faction => {
-            const rooks = Array.from(document.querySelectorAll(`piece.${faction}.rook`));
-            const knights = Array.from(document.querySelectorAll(`piece.${faction}.knight`));
-            const bishops = Array.from(document.querySelectorAll(`piece.${faction}.bishop`));
-            const queens = Array.from(document.querySelectorAll(`piece.${faction}.queen`));
-            const kings = Array.from(document.querySelectorAll(`piece.${faction}.king`));
-            const pawns = Array.from(document.querySelectorAll(`piece.${faction}.pawn`));
-            const pawnPieces = pawns.map(domElement => new Piece(domElement, "PAWN", faction));
-            const rookPieces = rooks.map(domElement => new Piece(domElement, "ROOK", faction));
-            const knightPieces = knights.map(domElement => new Piece(domElement, "KNIGHT", faction));
-            const bishopPieces = bishops.map(domElement => new Piece(domElement, "BISHOP", faction));
-            const queenPieces = queens.map(domElement => new Piece(domElement, "QUEEN", faction));
-            const kingPieces = kings.map(domElement => new Piece(domElement, "KING", faction));
-        
-            let attackedSquares = new Set();
-            pawnPieces.forEach(piece => {
-            piece.threatenedSquares(attackedSquares);
-            });
-        
-            rookPieces.forEach(piece => {
-            piece.threatenedSquares(attackedSquares);
-            });
-        
-            knightPieces.forEach(piece => {
-                piece.threatenedSquares(attackedSquares);
-            });
-        
-            bishopPieces.forEach(piece => {
-                piece.threatenedSquares(attackedSquares);
-            });
-        
-            queenPieces.forEach(piece => {
-                piece.threatenedSquares(attackedSquares);
-            });
-        
-            kingPieces.forEach(piece => {
-                piece.threatenedSquares(attackedSquares);
-            });
-        
-            Object.keys(attackedSquares).forEach(coords => {
-                drawSquare(coords, attackedSquares[coords], faction);
-            });
-        }
 
         let factionsToRender = [];
         if (renderwhite) {
