@@ -1,12 +1,12 @@
 const container = document.querySelector('cg-container');
 const board = document.querySelector('cg-container cg-board');
-const widthStyle = container.style.width;
-const heightStyle = container.style.height;
-const width = parseFloat(widthStyle);
-const height = parseFloat(heightStyle);
+let widthStyle;
+let heightStyle;
+let width;
+let height;
 
-const widthPerSquare = width / 8;
-const heightPerSquare = height / 8;
+let widthPerSquare;
+let heightPerSquare;
 
 console.debug("widthPerSquare", widthPerSquare, "widthPerSquare", widthPerSquare);
 
@@ -33,6 +33,16 @@ gamePlayersTags.forEach(element => {
         PLAYER_IS_WHITE = isWhite;
     }
 });
+
+function initParams() {
+    widthStyle = container.style.width;
+    heightStyle = container.style.height;
+    width = parseFloat(widthStyle);
+    height = parseFloat(heightStyle);
+
+    widthPerSquare = width / 8;
+    heightPerSquare = height / 8;
+}
 
 let toRenderTimeoutHandle = null;
 
@@ -476,13 +486,13 @@ const _render_faction = faction => {
     };
 }
 
-function render(renderwhite=true, renderblack=true) {
+function render(renderwhite=true, renderblack=true, forceRun=false) {
     const squares = document.querySelectorAll('square.renderedSquare');
-    if(squares.length > 0) {
+    if(!forceRun && squares.length > 0) {
         return;
     }
-
     const _processRenders = () => {
+        initParams();
         deleteSquares();
 
         let factionsToRender = [];
@@ -502,10 +512,19 @@ function render(renderwhite=true, renderblack=true) {
     toRenderTimeoutHandle = setTimeout(_processRenders, 1);
 }
 
-render(renderwhite=true, renderblack=true);
+run();
 
 const observer = new MutationObserver(mutations => {
-    render(renderwhite=true, renderblack=true);
+    run();
 });
 
 observer.observe(board, { childList: true });
+
+window.addEventListener('resize', function(event) {
+    console.log("asdf");
+    run(forceRun=true);
+}, true);
+
+function run(forceRun=false) {
+    render(renderwhite=true, renderblack=true, forceRun=forceRun);
+}
